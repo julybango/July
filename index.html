@@ -172,7 +172,7 @@
     <div class="info-bar">
       <div class="info-item">
         <span class="info-label">Level</span>
-        <span class="info-value" id="level" style="color: #f43f5e;">1/5</span>
+        <span class="info-value" id="level" style="color: #f43f5e;">1/3</span>
       </div>
       <div class="info-item">
         <span class="info-label">Gems Target</span>
@@ -214,14 +214,14 @@
     let revealed = [];
     let toastTimeout;
 
-    // TARGET GEMS PER LEVEL: Level 1=6, 2=8, 3=10, 4=12, 5=15
+    // TARGET GEMS PER LEVEL: Level 1=6, Level 2=8, Level 3=10
     const LEVEL_REQUIREMENTS = {
       1: 6,
       2: 8,
-      3: 10,
-      4: 12,
-      5: 15
+      3: 10
     };
+
+    const MAX_LEVEL = 3;
 
     function getRandomIndices(count) {
       let indices = [];
@@ -245,7 +245,7 @@
       startBtn.textContent = "START GAME";
 
       const target = LEVEL_REQUIREMENTS[level];
-      levelEl.textContent = `${level}/5`;
+      levelEl.textContent = `${level}/${MAX_LEVEL}`;
       gemsCounterEl.textContent = `0/${target}`;
 
       for (let i = 0; i < 25; i++) {
@@ -289,7 +289,7 @@
 
       const tiles = document.querySelectorAll(".tile");
 
-      // SHOW 10 FAKE BOMBS FOR 1 SECOND ONLY
+      // SHOW FAKE BOMBS FOR 1 SECOND ONLY
       fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -336,9 +336,9 @@
 
         if (gemsFound === targetGems) {
           gameActive = false;
-          if (level === 5) {
+          if (level === MAX_LEVEL) {
             revealAll();
-            showModal("🏆", "YOU WIN!", "You completed all levels despite the troll bombs!", "PLAY AGAIN", resetGame);
+            showModal("🏆", "YOU WIN!", "You completed all 3 levels despite the troll bombs!", "PLAY AGAIN", resetGame);
           } else {
             showModal(
               "🎉", 

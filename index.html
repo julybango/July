@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mines Deluxe</title>
+  <title>Memory Mines</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body {
@@ -40,7 +40,7 @@
     }
     .info-bar {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       width: 100%;
       background: #0f172a;
       padding: 10px 15px;
@@ -50,7 +50,7 @@
     }
     .info-item { display: flex; flex-direction: column; align-items: center; }
     .info-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 600; }
-    .info-value { font-size: 1.1rem; font-weight: 800; }
+    .info-value { font-size: 1.3rem; font-weight: 800; }
     
     .grid {
       display: grid;
@@ -82,15 +82,9 @@
     .tile.bomb {
       background: linear-gradient(145deg, #dc2626, #b91c1c);
       box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
-      animation: shake 0.3s ease-in-out;
     }
     
     @keyframes pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
 
     .btn {
       width: 100%;
@@ -105,9 +99,14 @@
       box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
       transition: all 0.2s;
     }
-    .btn:active { transform: scale(0.98); }
+    .btn:disabled {
+      background: #334155;
+      color: #64748b;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
 
-    /* Custom Modal Popup */
+    /* Modal Popup */
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -143,21 +142,13 @@
         <span class="info-label">Level</span>
         <span class="info-value" id="level" style="color: #f43f5e;">1/5</span>
       </div>
-      <div class="info-item">
-        <span class="info-label">Bomba</span>
-        <span class="info-value" id="bomb-count" style="color: #eab308;">2</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Score</span>
-        <span class="info-value" id="score" style="color: #38bdf8;">0</span>
-      </div>
     </div>
 
     <div class="grid" id="grid"></div>
 
-    <button class="btn" onclick="resetGame()">BAGONG LARO</button>
+    <button class="btn" id="start-btn" onclick="startGame()">START GAME</button>
 
-    <!-- Custom Modal Popup -->
+    <!-- Custom Modal -->
     <div class="modal-overlay" id="modal">
       <div class="modal-icon" id="m-icon">🎉</div>
       <div class="modal-title" id="m-title">LEVEL PASSED!</div>
@@ -169,31 +160,32 @@
   <script>
     const gridEl = document.getElementById("grid");
     const levelEl = document.getElementById("level");
-    const bombCountEl = document.getElementById("bomb-count");
-    const scoreEl = document.getElementById("score");
+    const startBtn = document.getElementById("start-btn");
     const modal = document.getElementById("modal");
 
     let level = 1;
-    let score = 0;
     let gemsFound = 0;
-    let gameOver = false;
+    let gameActive = false;
+    let isMemorizing = false;
     let board = [];
     let revealed = [];
 
     const bombLevels = [2, 4, 6, 8, 10]; 
 
-    function startLevel() {
+    function initGrid() {
       gridEl.innerHTML = "";
       board = Array(25).fill("safe");
       revealed = Array(25).fill(false);
       gemsFound = 0;
-      gameOver = false;
-      modal.classList.remove("active");
+      gameActive = false;
+      isMemorizing = false;
+      startBtn.disabled = false;
+      startBtn.textContent = "START GAME";
 
       let totalBombs = bombLevels[level - 1];
       levelEl.textContent = `${level}/5`;
-      bombCountEl.textContent = totalBombs;
 
+      // Maglagay ng random bombs
       let bombsPlaced = 0;
       while (bombsPlaced < totalBombs) {
         let idx = Math.floor(Math.random() * 25);
@@ -203,6 +195,7 @@
         }
       }
 
+      // Gumawa ng malilinis na tiles
       for (let i = 0; i < 25; i++) {
         const tile = document.createElement("div");
         tile.classList.add("tile");
@@ -211,33 +204,62 @@
       }
     }
 
+    function startGame() {
+      if (gameActive || isMemorizing) return;
+
+      isMemorizing = true;
+      startBtn.disabled = true;
+      startBtn.textContent = "ULUHIN ANG MGA BOMBA...";
+
+      const tiles = document.querySelectorAll(".tile");
+
+      // WALANG TAKIP: Ipakita ang lahat ng bomba para maulo ng player
+      board.forEach((type, idx) => {
+        if (type === "bomb") {
+          tiles[idx].classList.add("bomb");
+          tiles[idx].textContent = "💣";
+        }
+      });
+
+      // Pagkalipas ng 3 segundo, tatakpan ulit para magsimula ang laro!
+      setTimeout(() => {
+        board.forEach((type, idx) => {
+          if (type === "bomb") {
+            tiles[idx].classList.remove("bomb");
+            tiles[idx].textContent = "";
+          }
+        });
+        isMemorizing = false;
+        gameActive = true;
+        startBtn.textContent = "MAMILI NA!";
+      }, 3000);
+    }
+
     function handleTileClick(index, tile) {
-      if (gameOver || revealed[index]) return;
+      if (!gameActive || isMemorizing || revealed[index]) return;
 
       revealed[index] = true;
 
       if (board[index] === "bomb") {
         tile.classList.add("bomb");
         tile.textContent = "💣";
-        gameOver = true;
+        gameActive = false;
         revealAll();
         showModal("💥", "NATATAYA KA!", `Bumangga ka sa bomba sa Level ${level}.`, "ULITIN", resetGame);
       } else {
         tile.classList.add("safe");
         tile.textContent = "💎";
-        score += 10 * level;
         gemsFound++;
-        scoreEl.textContent = score;
 
         if (gemsFound === 3) {
-          gameOver = true;
+          gameActive = false;
           if (level === 5) {
             revealAll();
-            showModal("🏆", "PANALO KA!", `Nalagpasan mo ang 5 Levels!\nScore: ${score}`, "LARO ULIT", resetGame);
+            showModal("🏆", "PANALO KA!", "Nalagpasan mo ang lahat ng 5 Levels!", "LARO ULIT", resetGame);
           } else {
             showModal("🎉", "LEVEL PASSED!", `Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
               level++;
-              startLevel();
+              initGrid();
             });
           }
         }
@@ -264,18 +286,19 @@
       document.getElementById("m-title").textContent = title;
       document.getElementById("m-desc").textContent = desc;
       document.getElementById("m-btn").textContent = btnText;
-      nextModalAction = action;
+      nextModalAction = () => {
+        modal.classList.remove("active");
+        action();
+      };
       setTimeout(() => modal.classList.add("active"), 300);
     }
 
     function resetGame() {
       level = 1;
-      score = 0;
-      scoreEl.textContent = "0";
-      startLevel();
+      initGrid();
     }
 
-    startLevel();
+    initGrid();
   </script>
 </body>
 </html>

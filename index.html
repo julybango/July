@@ -209,11 +209,10 @@
     let revealed = [];
     let toastTimeout;
 
-    const TOTAL_BOMBS = 3;
-
-    function getRandomBombIndices() {
+    // Helper function para kumuha ng random positions
+    function getRandomIndices(count) {
       let indices = [];
-      while (indices.length < TOTAL_BOMBS) {
+      while (indices.length < count) {
         let idx = Math.floor(Math.random() * 25);
         if (!indices.includes(idx)) {
           indices.push(idx);
@@ -263,19 +262,19 @@
       isShowingBombs = true;
       startBtn.disabled = true;
 
-      // 1. Gawa muna ng FAKE positions na ipapakita sa screen
+      // 1. FAKE BOARD: 5 Bombs para ma-troll/kalito ang player
       fakeBoard = Array(25).fill("safe");
-      let fakeIndices = getRandomBombIndices();
+      let fakeIndices = getRandomIndices(5);
       fakeIndices.forEach(idx => fakeBoard[idx] = "bomb");
 
-      // 2. Gawa ng TOTOONG pwesto kung saan talaga papasok ang bomba kapag nagtakip na
+      // 2. REAL BOARD: 1 Bomb nalang kapag nagtakip na
       realBoard = Array(25).fill("safe");
-      let realIndices = getRandomBombIndices();
+      let realIndices = getRandomIndices(1);
       realIndices.forEach(idx => realBoard[idx] = "bomb");
 
       const tiles = document.querySelectorAll(".tile");
 
-      // IPAPAKITA ANG FAKE BOMBS NANG 3 SECONDS
+      // IPAPAKITA ANG 5 FAKE BOMBS NANG 3 SECONDS
       fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -283,7 +282,7 @@
         }
       });
 
-      // PAGKALIPAS NG 3 SECONDS, MATATAKPAN AT TOTOONG PWESTO NA ANG GAGAMITIN
+      // PAGKALIPAS NG 3 SECONDS, ITATAGO NA LAHAT
       setTimeout(() => {
         fakeBoard.forEach((type, idx) => {
           if (type === "bomb") {
@@ -307,13 +306,13 @@
 
       revealed[index] = true;
 
-      // Real board ang susundin para ma-troll sila!
+      // 1 Bomb nalang ang totoong nandito!
       if (realBoard[index] === "bomb") {
         tile.classList.add("bomb");
         tile.textContent = "💣";
         gameActive = false;
         revealAll();
-        showModal("😜", "NA-TROLLED KA!", `Lumipat pala ang bomba! Taya ka sa Level ${level}.`, "ULITIN", resetGame);
+        showModal("😜", "NA-TROLLED KA!", `Lumipat at naging isa nalang ang bomba! Taya ka pa rin sa Level ${level}.`, "ULITIN", resetGame);
       } else {
         tile.classList.add("safe");
         tile.textContent = "💎";
@@ -323,7 +322,7 @@
           gameActive = false;
           if (level === 5) {
             revealAll();
-            showModal("🏆", "PANALO KA!", "Nalagpasan mo pati ang troll bombs!", "LARO ULIT", resetGame);
+            showModal("🏆", "PANALO KA!", "Nalagpasan mo pati ang 5-fake-bomb trick!", "LARO ULIT", resetGame);
           } else {
             showModal("🎉", "LEVEL PASSED!", `Pumasa ka! Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
               level++;

@@ -214,7 +214,6 @@
     let revealed = [];
     let toastTimeout;
 
-    // TARGET GEMS PER LEVEL: Level 1=6, Level 2=8, Level 3=10
     const LEVEL_REQUIREMENTS = {
       1: 6,
       2: 8,
@@ -289,7 +288,7 @@
 
       const tiles = document.querySelectorAll(".tile");
 
-      // SHOW FAKE BOMBS FOR 1 SECOND ONLY
+      // SHOW FAKE BOMBS FOR 1 SECOND
       fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -338,7 +337,23 @@
           gameActive = false;
           if (level === MAX_LEVEL) {
             revealAll();
-            showModal("🏆", "YOU WIN!", "You completed all 3 levels despite the troll bombs!", "PLAY AGAIN", resetGame);
+            // FIRST STEP OF WINNING: SHOW GIFT BOX
+            showModal(
+              "🎁", 
+              "CONGRATULATIONS!", 
+              "You completed all levels! You received a gift box.", 
+              "OPEN", 
+              () => {
+                // SECOND STEP: SHOW SURPRISE MESSAGE
+                showModal(
+                  "❤️", 
+                  "I MISS YOU LOVELY MWUAAAAH ❤", 
+                  "Thank you for playing!", 
+                  "PLAY AGAIN", 
+                  resetGame
+                );
+              }
+            );
           } else {
             showModal(
               "🎉", 

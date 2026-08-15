@@ -141,8 +141,8 @@
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(5px);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
       border-radius: 20px;
       display: flex;
       flex-direction: column;
@@ -159,7 +159,34 @@
       opacity: 1;
       pointer-events: auto;
     }
-    .modal-icon { font-size: 3.5rem; margin-bottom: 10px; }
+    
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-icon { 
+      font-size: 4rem; 
+      margin-bottom: 15px; 
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: inline-block;
+    }
+    
+    /* Animation para sa pag-open ng gift box */
+    .modal-icon.open-gift {
+      animation: giftPop 0.5s ease-in-out;
+    }
+
+    @keyframes giftPop {
+      0% { transform: scale(1) rotate(0deg); }
+      30% { transform: scale(1.3) rotate(-10deg); }
+      60% { transform: scale(1.3) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
     .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; line-height: 1.3; }
     .modal-desc { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; }
     .modal-desc:empty { display: none; margin-bottom: 0; }
@@ -188,10 +215,12 @@
     <div class="toast" id="toast">⚠️ Press START GAME first!</div>
 
     <div class="modal-overlay" id="modal">
-      <div class="modal-icon" id="m-icon">🎉</div>
-      <div class="modal-title" id="m-title">Nice one Baho</div>
-      <div class="modal-desc" id="m-desc">You passed! Are you ready?</div>
-      <button class="btn" id="m-btn" onclick="nextModalAction()">NEXT LEVEL</button>
+      <div class="modal-content" id="m-content">
+        <div class="modal-icon" id="m-icon">🎉</div>
+        <div class="modal-title" id="m-title">Nice one Baho</div>
+        <div class="modal-desc" id="m-desc">You passed! Are you ready?</div>
+        <button class="btn" id="m-btn" onclick="nextModalAction()">NEXT LEVEL</button>
+      </div>
     </div>
   </div>
 
@@ -201,6 +230,8 @@
     const gemsCounterEl = document.getElementById("gems-counter");
     const startBtn = document.getElementById("start-btn");
     const modal = document.getElementById("modal");
+    const mContent = document.getElementById("m-content");
+    const mIcon = document.getElementById("m-icon");
     const toast = document.getElementById("toast");
     const card = document.getElementById("card");
 
@@ -338,21 +369,23 @@
           gameActive = false;
           if (level === MAX_LEVEL) {
             revealAll();
-            // FIRST STEP OF WINNING: SHOW GIFT BOX
+            // STEP 1: CONGRATULATIONS WITH GIFT BOX
             showModal(
               "🎁", 
               "CONGRATULATIONS!", 
               "You completed all levels! You received a gift box.", 
               "OPEN", 
               () => {
-                // SECOND STEP: SURPRISE MESSAGE (NO DESC, BUTTON TEXT UPDATED)
-                showModal(
-                  "❤️", 
-                  "I MISS YOU LOVELY❤️<br>MWUAAAAH 😚", 
-                  "", 
-                  "I MISS YOU MORE!", 
-                  resetGame
-                );
+                // STEP 2: OPENING ANIMATION & SURPRISE MESSAGE
+                openGiftAnimation(() => {
+                  showModal(
+                    "❤️", 
+                    "I MISS YOU LOVELY❤️<br>MWUAAAAH 😚", 
+                    "", 
+                    "I MISS YOU MORE!", 
+                    resetGame
+                  );
+                });
               }
             );
           } else {
@@ -387,18 +420,42 @@
     let nextModalAction = null;
 
     function showModal(icon, title, desc, btnText, action) {
-      document.getElementById("m-icon").textContent = icon;
+      mIcon.textContent = icon;
       document.getElementById("m-title").innerHTML = title;
       document.getElementById("m-desc").textContent = desc;
       document.getElementById("m-btn").textContent = btnText;
+      
       nextModalAction = () => {
-        modal.classList.remove("active");
         action();
       };
-      setTimeout(() => modal.classList.add("active"), 300);
+
+      setTimeout(() => {
+        modal.classList.add("active");
+        mContent.style.transform = "scale(1)";
+        mContent.style.opacity = "1";
+      }, 100);
+    }
+
+    function openGiftAnimation(callback) {
+      // 1. I-shake/bounce ang Gift icon
+      mIcon.classList.add("open-gift");
+
+      // 2. I-fade out nang kaunti ang modal content para sa smooth transition
+      setTimeout(() => {
+        mContent.style.transform = "scale(0.8)";
+        mContent.style.opacity = "0";
+      }, 350);
+
+      // 3. Ipalit ang surprise message at i-bounce pabalik
+      setTimeout(() => {
+        mIcon.classList.remove("open-gift");
+        modal.classList.remove("active");
+        callback();
+      }, 600);
     }
 
     function resetGame() {
+      modal.classList.remove("active");
       level = 1;
       initGrid();
     }

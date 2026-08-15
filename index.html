@@ -246,6 +246,85 @@
   </div>
 
   <script>
+    // WEB AUDIO API SOUND EFFECTS GENERATOR
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      initAudio();
+      const now = audioCtx.currentTime;
+
+      if (type === 'gem') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } else if (type === 'bomb') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'start') {
+        [261.63, 329.63, 392.00, 523.25].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.05 + 0.1);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.05);
+          osc.stop(now + idx * 0.05 + 0.1);
+        });
+      } else if (type === 'warn') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(180, now);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'win') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.25, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.2);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.2);
+        });
+      }
+    }
+
     const gridEl = document.getElementById("grid");
     const levelEl = document.getElementById("level");
     const gemsCounterEl = document.getElementById("gems-counter");
@@ -310,6 +389,7 @@
     }
 
     function showWarning() {
+      playSound('warn');
       toast.classList.add("show");
       card.classList.add("shake");
 
@@ -326,6 +406,7 @@
     function startGame() {
       if (gameActive || isShowingBombs) return;
 
+      playSound('start');
       hasStartedOnce = true;
       isShowingBombs = true;
       startBtn.disabled = true;
@@ -376,12 +457,14 @@
       const targetGems = LEVEL_REQUIREMENTS[level];
 
       if (realBoard[index] === "bomb") {
+        playSound('bomb');
         tile.classList.add("bomb");
         tile.textContent = "💣";
         gameActive = false;
         revealAll();
         showModal("💥", "GAME OVER", `Better luck next time! Hit a bomb at Level ${level}.`, "TRY AGAIN", resetGame);
       } else {
+        playSound('gem');
         tile.classList.add("safe");
         tile.textContent = "💎";
         gemsFound++;
@@ -389,6 +472,7 @@
 
         if (gemsFound === targetGems) {
           gameActive = false;
+          playSound('win');
           if (level === MAX_LEVEL) {
             revealAll();
             // FIRST STEP: CONGRATULATIONS WITH GIFT BOX
@@ -400,6 +484,7 @@
               () => {
                 // SECOND STEP: OPENING ANIMATION & ROSE SURPRISE WITH HEART EMOJI
                 openGiftAnimation(() => {
+                  playSound('win');
                   showModal(
                     "🌹", 
                     "I MISS YOU LOVELY ❤️<br>MWUAAAAH 😚", 

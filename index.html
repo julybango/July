@@ -185,8 +185,8 @@
     <div class="modal-overlay" id="modal">
       <div class="modal-icon" id="m-icon">🎉</div>
       <div class="modal-title" id="m-title">Nice one Baho</div>
-      <div class="modal-desc" id="m-desc">Nakakuha ka ng 5 Diyamante!</div>
-      <button class="btn" id="m-btn" onclick="nextModalAction()">TUMULOY</button>
+      <div class="modal-desc" id="m-desc">You passed! You collected 5 Diamonds. Are you ready for Level 2?</div>
+      <button class="btn" id="m-btn" onclick="nextModalAction()">NEXT LEVEL</button>
     </div>
   </div>
 
@@ -322,12 +322,18 @@
           gameActive = false;
           if (level === 5) {
             revealAll();
-            showModal("🏆", "PANALO KA!", "Nalagpasan mo pati ang 5-fake-bomb trick sa lahat ng Levels!", "LARO ULIT", resetGame);
+            showModal("🏆", "YOU WIN!", "You completed all levels despite the troll bombs!", "PLAY AGAIN", resetGame);
           } else {
-            showModal("🎉", "Nice one Baho", `Pumasa ka! Nakakuha ka ng 5 Diyamante. Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
-              level++;
-              initGrid();
-            });
+            showModal(
+              "🎉", 
+              "Nice one Baho", 
+              `You passed! You collected 5 Diamonds. Are you ready for Level ${level + 1}?`, 
+              "NEXT LEVEL", 
+              () => {
+                level++;
+                initGrid();
+              }
+            );
           }
         }
       }

@@ -185,7 +185,7 @@
     <div class="modal-overlay" id="modal">
       <div class="modal-icon" id="m-icon">🎉</div>
       <div class="modal-title" id="m-title">LEVEL PASSED!</div>
-      <div class="modal-desc" id="m-desc">Nakakuha ka ng 3 Diyamante!</div>
+      <div class="modal-desc" id="m-desc">Nakakuha ka ng 5 Diyamante!</div>
       <button class="btn" id="m-btn" onclick="nextModalAction()">TUMULOY</button>
     </div>
   </div>
@@ -209,7 +209,9 @@
     let revealed = [];
     let toastTimeout;
 
-    // Helper function para kumuha ng random positions
+    // TARGET GEMS DISASTER/GOAL SETUP
+    const REQUIRED_GEMS = 5;
+
     function getRandomIndices(count) {
       let indices = [];
       while (indices.length < count) {
@@ -262,12 +264,12 @@
       isShowingBombs = true;
       startBtn.disabled = true;
 
-      // 1. FAKE BOARD: 5 Bombs para ma-troll/kalito ang player
+      // 5 FAKE BOMBS
       fakeBoard = Array(25).fill("safe");
       let fakeIndices = getRandomIndices(5);
       fakeIndices.forEach(idx => fakeBoard[idx] = "bomb");
 
-      // 2. REAL BOARD: 1 Bomb nalang kapag nagtakip na
+      // 1 REAL BOMB
       realBoard = Array(25).fill("safe");
       let realIndices = getRandomIndices(1);
       realIndices.forEach(idx => realBoard[idx] = "bomb");
@@ -282,7 +284,7 @@
         }
       });
 
-      // PAGKALIPAS NG 3 SECONDS, ITATAGO NA LAHAT
+      // ITATAGO PAGKATAPOS NG 3 SECONDS
       setTimeout(() => {
         fakeBoard.forEach((type, idx) => {
           if (type === "bomb") {
@@ -306,25 +308,25 @@
 
       revealed[index] = true;
 
-      // 1 Bomb nalang ang totoong nandito!
       if (realBoard[index] === "bomb") {
         tile.classList.add("bomb");
         tile.textContent = "💣";
         gameActive = false;
         revealAll();
-        showModal("😜", "NA-TROLLED KA!", `Lumipat at naging isa nalang ang bomba! Taya ka pa rin sa Level ${level}.`, "ULITIN", resetGame);
+        showModal("😜", "NA-TROLLED KA!", `Lumipat at naging isa nalang ang bomba! Taya ka sa Level ${level}.`, "ULITIN", resetGame);
       } else {
         tile.classList.add("safe");
         tile.textContent = "💎";
         gemsFound++;
 
-        if (gemsFound === 3) {
+        // KAILANGAN NA NG 5 GEMS BAGO MANALO SA LEVEL
+        if (gemsFound === REQUIRED_GEMS) {
           gameActive = false;
           if (level === 5) {
             revealAll();
-            showModal("🏆", "PANALO KA!", "Nalagpasan mo pati ang 5-fake-bomb trick!", "LARO ULIT", resetGame);
+            showModal("🏆", "PANALO KA!", "Nalagpasan mo pati ang 5-fake-bomb trick sa lahat ng Levels!", "LARO ULIT", resetGame);
           } else {
-            showModal("🎉", "LEVEL PASSED!", `Pumasa ka! Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
+            showModal("🎉", "LEVEL PASSED!", `Pumasa ka! Nakakuha ka ng 5 Diyamante. Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
               level++;
               initGrid();
             });

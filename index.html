@@ -184,7 +184,7 @@
 
     <div class="modal-overlay" id="modal">
       <div class="modal-icon" id="m-icon">🎉</div>
-      <div class="modal-title" id="m-title">LEVEL PASSED!</div>
+      <div class="modal-title" id="m-title">Nice one Baho</div>
       <div class="modal-desc" id="m-desc">Nakakuha ka ng 5 Diyamante!</div>
       <button class="btn" id="m-btn" onclick="nextModalAction()">TUMULOY</button>
     </div>
@@ -209,7 +209,6 @@
     let revealed = [];
     let toastTimeout;
 
-    // TARGET GEMS DISASTER/GOAL SETUP
     const REQUIRED_GEMS = 5;
 
     function getRandomIndices(count) {
@@ -319,14 +318,13 @@
         tile.textContent = "💎";
         gemsFound++;
 
-        // KAILANGAN NA NG 5 GEMS BAGO MANALO SA LEVEL
         if (gemsFound === REQUIRED_GEMS) {
           gameActive = false;
           if (level === 5) {
             revealAll();
             showModal("🏆", "PANALO KA!", "Nalagpasan mo pati ang 5-fake-bomb trick sa lahat ng Levels!", "LARO ULIT", resetGame);
           } else {
-            showModal("🎉", "LEVEL PASSED!", `Pumasa ka! Nakakuha ka ng 5 Diyamante. Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
+            showModal("🎉", "Nice one Baho", `Pumasa ka! Nakakuha ka ng 5 Diyamante. Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
               level++;
               initGrid();
             });

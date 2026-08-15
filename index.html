@@ -141,7 +141,7 @@
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(8px);
       border-radius: 20px;
       display: flex;
@@ -170,7 +170,7 @@
 
     .modal-icon { 
       font-size: 4rem; 
-      margin-bottom: 15px; 
+      margin-bottom: 10px; 
       display: inline-block;
       filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.6));
     }
@@ -200,8 +200,8 @@
       100% { transform: scale(1) rotate(0deg); }
     }
 
-    .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; line-height: 1.3; }
-    .modal-desc { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; }
+    .modal-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
+    .modal-desc { color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px; }
     .modal-desc:empty { display: none; margin-bottom: 0; }
 
     .btn-gold {
@@ -209,11 +209,22 @@
       color: #ffffff !important;
       box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;
     }
+
+    .music-player-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 15px;
+      border-radius: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Sweet Romantic Music Source -->
+  <!-- Romantic Music Source -->
   <audio id="bg-music" loop preload="auto">
     <source src="https://actions.google.com/sounds/v1/ambiences/romantic_theme.ogg" type="audio/ogg">
   </audio>
@@ -243,6 +254,16 @@
         <div class="modal-icon" id="m-icon">🎉</div>
         <div class="modal-title" id="m-title">Nice one Baho</div>
         <div class="modal-desc" id="m-desc">You passed! Are you ready?</div>
+        
+        <!-- Interactive Play Music Button container -->
+        <div id="music-container" style="display:none; width: 100%;">
+          <div class="music-player-box">
+            <span style="font-size: 1.2rem;">🎶</span>
+            <span style="font-size: 0.85rem; color: #f1f5f9; flex: 1; text-align: left;">I-play ang kanta para mas sweet!</span>
+            <button class="btn" id="play-music-btn" onclick="manualPlayMusic()" style="padding: 6px 12px; font-size: 0.8rem; width: auto;">PLAY 🎵</button>
+          </div>
+        </div>
+
         <button class="btn" id="m-btn" onclick="nextModalAction()">NEXT LEVEL</button>
       </div>
     </div>
@@ -250,15 +271,29 @@
 
   <script>
     const bgMusic = document.getElementById("bg-music");
+    const musicContainer = document.getElementById("music-container");
+    const playMusicBtn = document.getElementById("play-music-btn");
 
     function playMusic() {
       bgMusic.currentTime = 0;
-      bgMusic.play().catch(e => console.log("Audio play blocked by browser:", e));
+      bgMusic.play().then(() => {
+        musicContainer.style.display = "none";
+      }).catch(e => {
+        // Kung sakaling i-block ng browser, lalabas ang Play button para siya ang mag-click
+        musicContainer.style.display = "block";
+      });
+    }
+
+    function manualPlayMusic() {
+      bgMusic.play().then(() => {
+        musicContainer.style.display = "none";
+      });
     }
 
     function stopMusic() {
       bgMusic.pause();
       bgMusic.currentTime = 0;
+      musicContainer.style.display = "none";
     }
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -492,14 +527,14 @@
               "OPEN", 
               () => {
                 openGiftAnimation(() => {
-                  playMusic(); // Tugtog ng sweet romantic background music dito
+                  playMusic(); // Auto-play attempt
                   showModal(
                     "🌹", 
                     "I MISS YOU LOVELY ❤️<br>MWUAAAAH 😚", 
                     "", 
                     "I MISS YOU MORE!", 
                     () => {
-                      stopMusic(); // Hihinto ang kanta pag-click
+                      stopMusic(); 
                       resetGame();
                     },
                     true
@@ -545,6 +580,9 @@
       document.getElementById("m-desc").textContent = desc;
       mBtn.textContent = btnText;
       
+      // I-reset muna ang music container bago buksan ang modal
+      musicContainer.style.display = "none";
+
       if (isSpecial) {
         mIcon.classList.add("float-glow");
         mBtn.classList.add("btn-gold");

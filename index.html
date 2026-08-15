@@ -175,7 +175,6 @@
       filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.6));
     }
 
-    /* Floating glowing animation para sa Rose */
     .modal-icon.float-glow {
       animation: floatGlow 2.5s ease-in-out infinite;
     }
@@ -205,7 +204,6 @@
     .modal-desc { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; }
     .modal-desc:empty { display: none; margin-bottom: 0; }
 
-    /* Custom style para sa huling message button */
     .btn-gold {
       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
       color: #ffffff !important;
@@ -214,6 +212,11 @@
   </style>
 </head>
 <body>
+
+  <!-- Sweet Romantic Music Source -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="https://actions.google.com/sounds/v1/ambiences/romantic_theme.ogg" type="audio/ogg">
+  </audio>
 
   <div class="game-card" id="card">
     <h1>JULY SARAP</h1>
@@ -246,7 +249,18 @@
   </div>
 
   <script>
-    // WEB AUDIO API SOUND EFFECTS GENERATOR
+    const bgMusic = document.getElementById("bg-music");
+
+    function playMusic() {
+      bgMusic.currentTime = 0;
+      bgMusic.play().catch(e => console.log("Audio play blocked by browser:", e));
+    }
+
+    function stopMusic() {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+    }
+
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
 
@@ -267,8 +281,8 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, now); // D5
-        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+        osc.frequency.setValueAtTime(587.33, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
         gain.gain.setValueAtTime(0.3, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
         osc.connect(gain);
@@ -411,19 +425,16 @@
       isShowingBombs = true;
       startBtn.disabled = true;
 
-      // 10 FAKE BOMBS
       fakeBoard = Array(25).fill("safe");
       let fakeIndices = getRandomIndices(10);
       fakeIndices.forEach(idx => fakeBoard[idx] = "bomb");
 
-      // 1 REAL BOMB
       realBoard = Array(25).fill("safe");
       let realIndices = getRandomIndices(1);
       realIndices.forEach(idx => realBoard[idx] = "bomb");
 
       const tiles = document.querySelectorAll(".tile");
 
-      // SHOW FAKE BOMBS FOR 1 SECOND
       fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -431,7 +442,6 @@
         }
       });
 
-      // HIDE AFTER 1 SECOND
       setTimeout(() => {
         fakeBoard.forEach((type, idx) => {
           if (type === "bomb") {
@@ -475,23 +485,24 @@
           playSound('win');
           if (level === MAX_LEVEL) {
             revealAll();
-            // FIRST STEP: CONGRATULATIONS WITH GIFT BOX
             showModal(
               "🎁", 
               "CONGRATULATIONS!", 
               "You completed all levels! You received a gift box.", 
               "OPEN", 
               () => {
-                // SECOND STEP: OPENING ANIMATION & ROSE SURPRISE WITH HEART EMOJI
                 openGiftAnimation(() => {
-                  playSound('win');
+                  playMusic(); // Tugtog ng sweet romantic background music dito
                   showModal(
                     "🌹", 
                     "I MISS YOU LOVELY ❤️<br>MWUAAAAH 😚", 
                     "", 
                     "I MISS YOU MORE!", 
-                    resetGame,
-                    true // Custom floating glow effect
+                    () => {
+                      stopMusic(); // Hihinto ang kanta pag-click
+                      resetGame();
+                    },
+                    true
                   );
                 });
               }

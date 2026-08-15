@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -184,7 +184,7 @@
 
     <button class="btn" id="start-btn" onclick="startGame()">START GAME</button>
 
-    <div class="toast" id="toast">⚠️ Pindutin muna ang START GAME!</div>
+    <div class="toast" id="toast">⚠️ Press START GAME first!</div>
 
     <div class="modal-overlay" id="modal">
       <div class="modal-icon" id="m-icon">🎉</div>
@@ -289,7 +289,7 @@
 
       const tiles = document.querySelectorAll(".tile");
 
-      // IPAPAKITA ANG 5 FAKE BOMBS NANG 3 SECONDS
+      // SHOW FAKE BOMBS FOR 3 SECONDS
       fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -297,7 +297,7 @@
         }
       });
 
-      // ITATAGO PAGKATAPOS NG 3 SECONDS
+      // HIDE AFTER 3 SECONDS
       setTimeout(() => {
         fakeBoard.forEach((type, idx) => {
           if (type === "bomb") {
@@ -307,7 +307,7 @@
         });
         isShowingBombs = false;
         gameActive = true;
-        startBtn.textContent = "MAMILI NA!";
+        startBtn.textContent = "PICK NOW!";
       }, 3000);
     }
 

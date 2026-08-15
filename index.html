@@ -169,25 +169,37 @@
     }
 
     .modal-icon { 
-      font-size: 4rem; 
+      font-size: 4.2rem; 
       margin-bottom: 15px; 
       display: inline-block;
-      filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.6));
+      filter: drop-shadow(0 0 18px rgba(244, 63, 94, 0.8));
     }
 
-    /* Floating glowing animation para sa special message icon */
-    .modal-icon.float-glow {
-      animation: floatGlow 2.5s ease-in-out infinite;
+    /* Heartbeat animation para sa Red Heart */
+    .modal-icon.heartbeat {
+      animation: heartbeat 1.3s infinite;
     }
 
-    @keyframes floatGlow {
-      0%, 100% {
-        transform: translateY(0px) scale(1);
-        filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.6));
+    @keyframes heartbeat {
+      0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.7));
       }
-      50% {
-        transform: translateY(-8px) scale(1.08);
-        filter: drop-shadow(0 0 25px rgba(251, 113, 133, 0.9));
+      14% {
+        transform: scale(1.18);
+        filter: drop-shadow(0 0 25px rgba(244, 63, 94, 1));
+      }
+      28% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.7));
+      }
+      42% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 22px rgba(244, 63, 94, 0.9));
+      }
+      70% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.7));
       }
     }
     
@@ -398,15 +410,15 @@
               "You completed all levels! You received a gift box.", 
               "OPEN", 
               () => {
-                // SECOND STEP: OPENING ANIMATION & SPECIAL FLOWER SURPRISE
+                // SECOND STEP: OPENING ANIMATION & RED HEART SURPRISE
                 openGiftAnimation(() => {
                   showModal(
-                    "🌹", 
+                    "❤️", 
                     "I MISS YOU LOVELY ✨<br>MWUAAAAH 😚", 
                     "", 
                     "I MISS YOU MORE!", 
                     resetGame,
-                    true // Custom floating glow effect
+                    true // Custom heartbeat effect
                   );
                 });
               }
@@ -450,10 +462,10 @@
       mBtn.textContent = btnText;
       
       if (isSpecial) {
-        mIcon.classList.add("float-glow");
+        mIcon.classList.add("heartbeat");
         mBtn.classList.add("btn-gold");
       } else {
-        mIcon.classList.remove("float-glow");
+        mIcon.classList.remove("heartbeat");
         mBtn.classList.remove("btn-gold");
       }
 

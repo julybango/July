@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memory Mines - Troll Edition</title>
+  <title>Mines Deluxe</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body {
@@ -56,7 +56,6 @@
     .info-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 600; }
     .info-value { font-size: 1.3rem; font-weight: 800; }
     
-    /* Fixed Equal-Sized Grid Layout */
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -202,7 +201,7 @@
     let level = 1;
     let gemsFound = 0;
     let gameActive = false;
-    let isMemorizing = false;
+    let isShowingBombs = false;
     let hasStartedOnce = false;
     
     let realBoard = [];
@@ -228,7 +227,7 @@
       revealed = Array(25).fill(false);
       gemsFound = 0;
       gameActive = false;
-      isMemorizing = false;
+      isShowingBombs = false;
       hasStartedOnce = false;
       startBtn.disabled = false;
       startBtn.textContent = "START GAME";
@@ -258,23 +257,25 @@
     }
 
     function startGame() {
-      if (gameActive || isMemorizing) return;
+      if (gameActive || isShowingBombs) return;
 
       hasStartedOnce = true;
-      isMemorizing = true;
+      isShowingBombs = true;
       startBtn.disabled = true;
-      startBtn.textContent = "ULUHIN ANG MGA BOMBA...";
 
+      // 1. Gawa muna ng FAKE positions na ipapakita sa screen
       fakeBoard = Array(25).fill("safe");
       let fakeIndices = getRandomBombIndices();
       fakeIndices.forEach(idx => fakeBoard[idx] = "bomb");
 
+      // 2. Gawa ng TOTOONG pwesto kung saan talaga papasok ang bomba kapag nagtakip na
       realBoard = Array(25).fill("safe");
       let realIndices = getRandomBombIndices();
       realIndices.forEach(idx => realBoard[idx] = "bomb");
 
       const tiles = document.querySelectorAll(".tile");
 
+      // IPAPAKITA ANG FAKE BOMBS NANG 3 SECONDS
       fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -282,6 +283,7 @@
         }
       });
 
+      // PAGKALIPAS NG 3 SECONDS, MATATAKPAN AT TOTOONG PWESTO NA ANG GAGAMITIN
       setTimeout(() => {
         fakeBoard.forEach((type, idx) => {
           if (type === "bomb") {
@@ -289,7 +291,7 @@
             tiles[idx].textContent = "";
           }
         });
-        isMemorizing = false;
+        isShowingBombs = false;
         gameActive = true;
         startBtn.textContent = "MAMILI NA!";
       }, 3000);
@@ -301,16 +303,17 @@
         return;
       }
 
-      if (!gameActive || isMemorizing || revealed[index]) return;
+      if (!gameActive || isShowingBombs || revealed[index]) return;
 
       revealed[index] = true;
 
+      // Real board ang susundin para ma-troll sila!
       if (realBoard[index] === "bomb") {
         tile.classList.add("bomb");
         tile.textContent = "💣";
         gameActive = false;
         revealAll();
-        showModal("😜", "NA-TROLLED KA!", `LUMIPAT ANG BOMBA! Haha! Taya ka sa Level ${level}.`, "ULITIN", resetGame);
+        showModal("😜", "NA-TROLLED KA!", `Lumipat pala ang bomba! Taya ka sa Level ${level}.`, "ULITIN", resetGame);
       } else {
         tile.classList.add("safe");
         tile.textContent = "💎";
@@ -320,7 +323,7 @@
           gameActive = false;
           if (level === 5) {
             revealAll();
-            showModal("🏆", "PANALO KA!", "Lupet mo! Nalagpasan mo pati ang panlilinlang!", "LARO ULIT", resetGame);
+            showModal("🏆", "PANALO KA!", "Nalagpasan mo pati ang troll bombs!", "LARO ULIT", resetGame);
           } else {
             showModal("🎉", "LEVEL PASSED!", `Pumasa ka! Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
               level++;

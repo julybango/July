@@ -29,6 +29,10 @@
       width: 100%;
       max-width: 360px;
       position: relative;
+      transition: transform 0.2s;
+    }
+    .game-card.shake {
+      animation: shake 0.3s ease-in-out;
     }
     h1 {
       font-size: 1.8rem;
@@ -85,6 +89,11 @@
     }
     
     @keyframes pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
 
     .btn {
       width: 100%;
@@ -106,6 +115,28 @@
       cursor: not-allowed;
     }
 
+    /* Warning Message Toast */
+    .toast {
+      position: absolute;
+      bottom: 80px;
+      background: rgba(239, 68, 68, 0.95);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     /* Modal Popup */
     .modal-overlay {
       position: absolute;
@@ -122,6 +153,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
+      z-index: 20;
     }
     .modal-overlay.active {
       opacity: 1;
@@ -134,7 +166,7 @@
 </head>
 <body>
 
-  <div class="game-card">
+  <div class="game-card" id="card">
     <h1>MINES DELUXE</h1>
 
     <div class="info-bar">
@@ -147,6 +179,9 @@
     <div class="grid" id="grid"></div>
 
     <button class="btn" id="start-btn" onclick="startGame()">START GAME</button>
+
+    <!-- Warning Toast -->
+    <div class="toast" id="toast">⚠️ Pindutin muna ang START GAME!</div>
 
     <!-- Custom Modal -->
     <div class="modal-overlay" id="modal">
@@ -162,13 +197,17 @@
     const levelEl = document.getElementById("level");
     const startBtn = document.getElementById("start-btn");
     const modal = document.getElementById("modal");
+    const toast = document.getElementById("toast");
+    const card = document.getElementById("card");
 
     let level = 1;
     let gemsFound = 0;
     let gameActive = false;
     let isMemorizing = false;
+    let hasStartedOnce = false;
     let board = [];
     let revealed = [];
+    let toastTimeout;
 
     const bombLevels = [2, 4, 6, 8, 10]; 
 
@@ -179,13 +218,13 @@
       gemsFound = 0;
       gameActive = false;
       isMemorizing = false;
+      hasStartedOnce = false;
       startBtn.disabled = false;
       startBtn.textContent = "START GAME";
 
       let totalBombs = bombLevels[level - 1];
       levelEl.textContent = `${level}/5`;
 
-      // Maglagay ng random bombs
       let bombsPlaced = 0;
       while (bombsPlaced < totalBombs) {
         let idx = Math.floor(Math.random() * 25);
@@ -195,7 +234,6 @@
         }
       }
 
-      // Gumawa ng malilinis na tiles
       for (let i = 0; i < 25; i++) {
         const tile = document.createElement("div");
         tile.classList.add("tile");
@@ -204,16 +242,30 @@
       }
     }
 
+    function showWarning() {
+      toast.classList.add("show");
+      card.classList.add("shake");
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2000);
+
+      setTimeout(() => {
+        card.classList.remove("shake");
+      }, 300);
+    }
+
     function startGame() {
       if (gameActive || isMemorizing) return;
 
+      hasStartedOnce = true;
       isMemorizing = true;
       startBtn.disabled = true;
       startBtn.textContent = "ULUHIN ANG MGA BOMBA...";
 
       const tiles = document.querySelectorAll(".tile");
 
-      // WALANG TAKIP: Ipakita ang lahat ng bomba para maulo ng player
       board.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -221,7 +273,6 @@
         }
       });
 
-      // Pagkalipas ng 3 segundo, tatakpan ulit para magsimula ang laro!
       setTimeout(() => {
         board.forEach((type, idx) => {
           if (type === "bomb") {
@@ -236,6 +287,11 @@
     }
 
     function handleTileClick(index, tile) {
+      if (!hasStartedOnce) {
+        showWarning();
+        return;
+      }
+
       if (!gameActive || isMemorizing || revealed[index]) return;
 
       revealed[index] = true;

@@ -152,7 +152,7 @@
       text-align: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.2s ease;
       z-index: 20;
     }
     .modal-overlay.active {
@@ -165,25 +165,22 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: transform 0.2s ease, opacity 0.2s ease;
     }
 
     .modal-icon { 
       font-size: 4rem; 
       margin-bottom: 15px; 
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       display: inline-block;
     }
     
-    /* Animation para sa pag-open ng gift box */
     .modal-icon.open-gift {
-      animation: giftPop 0.5s ease-in-out;
+      animation: giftPop 0.4s ease-in-out;
     }
 
     @keyframes giftPop {
       0% { transform: scale(1) rotate(0deg); }
-      30% { transform: scale(1.3) rotate(-10deg); }
-      60% { transform: scale(1.3) rotate(10deg); }
+      50% { transform: scale(1.3) rotate(-10deg); }
       100% { transform: scale(1) rotate(0deg); }
     }
 
@@ -369,14 +366,14 @@
           gameActive = false;
           if (level === MAX_LEVEL) {
             revealAll();
-            // STEP 1: CONGRATULATIONS WITH GIFT BOX
+            // FIRST STEP: CONGRATULATIONS WITH GIFT BOX
             showModal(
               "🎁", 
               "CONGRATULATIONS!", 
               "You completed all levels! You received a gift box.", 
               "OPEN", 
               () => {
-                // STEP 2: OPENING ANIMATION & SURPRISE MESSAGE
+                // SECOND STEP: OPENING ANIMATION & SURPRISE MESSAGE
                 openGiftAnimation(() => {
                   showModal(
                     "❤️", 
@@ -395,6 +392,7 @@
               `You passed! You collected ${targetGems} Diamonds. Are you ready for Level ${level + 1}?`, 
               "NEXT LEVEL", 
               () => {
+                modal.classList.remove("active");
                 level++;
                 initGrid();
               }
@@ -429,29 +427,20 @@
         action();
       };
 
-      setTimeout(() => {
-        modal.classList.add("active");
-        mContent.style.transform = "scale(1)";
-        mContent.style.opacity = "1";
-      }, 100);
+      modal.classList.add("active");
+      mContent.style.transform = "scale(1)";
+      mContent.style.opacity = "1";
     }
 
     function openGiftAnimation(callback) {
-      // 1. I-shake/bounce ang Gift icon
       mIcon.classList.add("open-gift");
+      mContent.style.transform = "scale(0.8)";
+      mContent.style.opacity = "0";
 
-      // 2. I-fade out nang kaunti ang modal content para sa smooth transition
-      setTimeout(() => {
-        mContent.style.transform = "scale(0.8)";
-        mContent.style.opacity = "0";
-      }, 350);
-
-      // 3. Ipalit ang surprise message at i-bounce pabalik
       setTimeout(() => {
         mIcon.classList.remove("open-gift");
-        modal.classList.remove("active");
         callback();
-      }, 600);
+      }, 300);
     }
 
     function resetGame() {

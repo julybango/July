@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memory Mines</title>
+  <title>Memory Mines - Troll Edition</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body {
@@ -115,7 +115,6 @@
       cursor: not-allowed;
     }
 
-    /* Warning Message Toast */
     .toast {
       position: absolute;
       bottom: 80px;
@@ -137,7 +136,6 @@
       transform: translateY(0);
     }
 
-    /* Modal Popup */
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -180,10 +178,8 @@
 
     <button class="btn" id="start-btn" onclick="startGame()">START GAME</button>
 
-    <!-- Warning Toast -->
     <div class="toast" id="toast">⚠️ Pindutin muna ang START GAME!</div>
 
-    <!-- Custom Modal -->
     <div class="modal-overlay" id="modal">
       <div class="modal-icon" id="m-icon">🎉</div>
       <div class="modal-title" id="m-title">LEVEL PASSED!</div>
@@ -205,15 +201,27 @@
     let gameActive = false;
     let isMemorizing = false;
     let hasStartedOnce = false;
-    let board = [];
+    
+    let realBoard = [];
+    let fakeBoard = [];
     let revealed = [];
     let toastTimeout;
 
-    const bombLevels = [2, 4, 6, 8, 10]; 
+    const TOTAL_BOMBS = 3; // Fixed na 3 bomba palagi
+
+    function getRandomBombIndices() {
+      let indices = [];
+      while (indices.length < TOTAL_BOMBS) {
+        let idx = Math.floor(Math.random() * 25);
+        if (!indices.includes(idx)) {
+          indices.push(idx);
+        }
+      }
+      return indices;
+    }
 
     function initGrid() {
       gridEl.innerHTML = "";
-      board = Array(25).fill("safe");
       revealed = Array(25).fill(false);
       gemsFound = 0;
       gameActive = false;
@@ -222,17 +230,7 @@
       startBtn.disabled = false;
       startBtn.textContent = "START GAME";
 
-      let totalBombs = bombLevels[level - 1];
       levelEl.textContent = `${level}/5`;
-
-      let bombsPlaced = 0;
-      while (bombsPlaced < totalBombs) {
-        let idx = Math.floor(Math.random() * 25);
-        if (board[idx] === "safe") {
-          board[idx] = "bomb";
-          bombsPlaced++;
-        }
-      }
 
       for (let i = 0; i < 25; i++) {
         const tile = document.createElement("div");
@@ -264,17 +262,29 @@
       startBtn.disabled = true;
       startBtn.textContent = "ULUHIN ANG MGA BOMBA...";
 
+      // Mag-generate ng FAKE na pwesto ng bomba
+      fakeBoard = Array(25).fill("safe");
+      let fakeIndices = getRandomBombIndices();
+      fakeIndices.forEach(idx => fakeBoard[idx] = "bomb");
+
+      // Mag-generate ng REAL/BAGONG pwesto ng bomba
+      realBoard = Array(25).fill("safe");
+      let realIndices = getRandomBombIndices();
+      realIndices.forEach(idx => realBoard[idx] = "bomb");
+
       const tiles = document.querySelectorAll(".tile");
 
-      board.forEach((type, idx) => {
+      // SHOW FAKE BOMBS MUNA
+      fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
           tiles[idx].textContent = "💣";
         }
       });
 
+      // MATAKPAN AT MALIPAT NA ANG BOMBA SECRETLY
       setTimeout(() => {
-        board.forEach((type, idx) => {
+        fakeBoard.forEach((type, idx) => {
           if (type === "bomb") {
             tiles[idx].classList.remove("bomb");
             tiles[idx].textContent = "";
@@ -296,12 +306,13 @@
 
       revealed[index] = true;
 
-      if (board[index] === "bomb") {
+      // GAMITIN ANG REAL BOARD (nakalipat na pwesto)
+      if (realBoard[index] === "bomb") {
         tile.classList.add("bomb");
         tile.textContent = "💣";
         gameActive = false;
         revealAll();
-        showModal("💥", "NATATAYA KA!", `Bumangga ka sa bomba sa Level ${level}.`, "ULITIN", resetGame);
+        showModal("😜", "NA-TROLLED KA!", `LUMIPAT ANG BOMBA! Haha! Taya ka sa Level ${level}.`, "ULITIN", resetGame);
       } else {
         tile.classList.add("safe");
         tile.textContent = "💎";
@@ -311,9 +322,9 @@
           gameActive = false;
           if (level === 5) {
             revealAll();
-            showModal("🏆", "PANALO KA!", "Nalagpasan mo ang lahat ng 5 Levels!", "LARO ULIT", resetGame);
+            showModal("🏆", "PANALO KA!", "Lupet mo! Nalagpasan mo pati ang panlilinlang!", "LARO ULIT", resetGame);
           } else {
-            showModal("🎉", "LEVEL PASSED!", `Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
+            showModal("🎉", "LEVEL PASSED!", `Pumasa ka! Handa ka na sa Level ${level + 1}?`, "SUNOD NA LEVEL", () => {
               level++;
               initGrid();
             });
@@ -324,7 +335,7 @@
 
     function revealAll() {
       const tiles = document.querySelectorAll(".tile");
-      board.forEach((type, idx) => {
+      realBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
           tiles[idx].textContent = "💣";

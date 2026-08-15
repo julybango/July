@@ -160,7 +160,7 @@
       pointer-events: auto;
     }
     .modal-icon { font-size: 3.5rem; margin-bottom: 10px; }
-    .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; }
+    .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; line-height: 1.3; }
     .modal-desc { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; }
   </style>
 </head>
@@ -344,10 +344,10 @@
               "You completed all levels! You received a gift box.", 
               "OPEN", 
               () => {
-                // SECOND STEP: SHOW SURPRISE MESSAGE
+                // SECOND STEP: SHOW SURPRISE MESSAGE WITH EXACT TEXT FORMAT
                 showModal(
                   "❤️", 
-                  "I MISS YOU LOVELY MWUAAAAH ❤", 
+                  "I MISS YOU LOVELY❤️<br>MWUAAAAH 😚", 
                   "Thank you for playing!", 
                   "PLAY AGAIN", 
                   resetGame
@@ -387,7 +387,7 @@
 
     function showModal(icon, title, desc, btnText, action) {
       document.getElementById("m-icon").textContent = icon;
-      document.getElementById("m-title").textContent = title;
+      document.getElementById("m-title").innerHTML = title;
       document.getElementById("m-desc").textContent = desc;
       document.getElementById("m-btn").textContent = btnText;
       nextModalAction = () => {

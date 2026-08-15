@@ -56,12 +56,14 @@
     .info-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 600; }
     .info-value { font-size: 1.3rem; font-weight: 800; }
     
+    /* Fixed Equal-Sized Grid Layout */
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
       gap: 8px;
       width: 100%;
-      aspect-ratio: 1;
+      height: 310px;
       margin-bottom: 20px;
     }
     .tile {
@@ -70,25 +72,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       cursor: pointer;
       user-select: none;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      transition: all 0.15s ease;
+      transition: background 0.15s, border 0.15s;
       border: 1px solid rgba(255, 255, 255, 0.05);
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
     .tile:active { transform: scale(0.95); }
     .tile.safe {
       background: linear-gradient(145deg, #059669, #047857);
       box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-      animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .tile.bomb {
       background: linear-gradient(145deg, #dc2626, #b91c1c);
       box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
     }
     
-    @keyframes pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       20%, 60% { transform: translateX(-6px); }
@@ -207,7 +210,7 @@
     let revealed = [];
     let toastTimeout;
 
-    const TOTAL_BOMBS = 3; // Fixed na 3 bomba palagi
+    const TOTAL_BOMBS = 3;
 
     function getRandomBombIndices() {
       let indices = [];
@@ -262,19 +265,16 @@
       startBtn.disabled = true;
       startBtn.textContent = "ULUHIN ANG MGA BOMBA...";
 
-      // Mag-generate ng FAKE na pwesto ng bomba
       fakeBoard = Array(25).fill("safe");
       let fakeIndices = getRandomBombIndices();
       fakeIndices.forEach(idx => fakeBoard[idx] = "bomb");
 
-      // Mag-generate ng REAL/BAGONG pwesto ng bomba
       realBoard = Array(25).fill("safe");
       let realIndices = getRandomBombIndices();
       realIndices.forEach(idx => realBoard[idx] = "bomb");
 
       const tiles = document.querySelectorAll(".tile");
 
-      // SHOW FAKE BOMBS MUNA
       fakeBoard.forEach((type, idx) => {
         if (type === "bomb") {
           tiles[idx].classList.add("bomb");
@@ -282,7 +282,6 @@
         }
       });
 
-      // MATAKPAN AT MALIPAT NA ANG BOMBA SECRETLY
       setTimeout(() => {
         fakeBoard.forEach((type, idx) => {
           if (type === "bomb") {
@@ -306,7 +305,6 @@
 
       revealed[index] = true;
 
-      // GAMITIN ANG REAL BOARD (nakalipat na pwesto)
       if (realBoard[index] === "bomb") {
         tile.classList.add("bomb");
         tile.textContent = "💣";

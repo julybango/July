@@ -264,7 +264,11 @@
           </div>
         </div>
 
-        <button class="btn" id="m-btn" onclick="nextModalAction()">NEXT LEVEL</button>
+        <!-- Buttons Container (Para sa dalawang buttons sa huli) -->
+        <div id="buttons-container" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+          <button class="btn" id="m-btn" onclick="nextModalAction()">NEXT LEVEL</button>
+          <button class="btn btn-gold" id="m-btn-2" onclick="secondModalAction()" style="display: none;">I LOVE YOU TOO! ❤️</button>
+        </div>
       </div>
     </div>
   </div>
@@ -279,7 +283,6 @@
       bgMusic.play().then(() => {
         musicContainer.style.display = "none";
       }).catch(e => {
-        // Kung sakaling i-block ng browser, lalabas ang Play button para siya ang mag-click
         musicContainer.style.display = "block";
       });
     }
@@ -382,6 +385,7 @@
     const mContent = document.getElementById("m-content");
     const mIcon = document.getElementById("m-icon");
     const mBtn = document.getElementById("m-btn");
+    const mBtn2 = document.getElementById("m-btn-2");
     const toast = document.getElementById("toast");
     const card = document.getElementById("card");
 
@@ -527,7 +531,7 @@
               "OPEN", 
               () => {
                 openGiftAnimation(() => {
-                  playMusic(); // Auto-play attempt
+                  playMusic();
                   showModal(
                     "🌹", 
                     "I MISS YOU LOVELY ❤️<br>MWUAAAAH 😚", 
@@ -537,7 +541,12 @@
                       stopMusic(); 
                       resetGame();
                     },
-                    true
+                    true,
+                    "I LOVE YOU TOO! ❤️",
+                    () => {
+                      stopMusic();
+                      resetGame();
+                    }
                   );
                 });
               }
@@ -573,15 +582,24 @@
     }
 
     let nextModalAction = null;
+    let secondModalAction = null;
 
-    function showModal(icon, title, desc, btnText, action, isSpecial = false) {
+    function showModal(icon, title, desc, btnText, action, isSpecial = false, btnText2 = "", action2 = null) {
       mIcon.textContent = icon;
       document.getElementById("m-title").innerHTML = title;
       document.getElementById("m-desc").textContent = desc;
       mBtn.textContent = btnText;
       
-      // I-reset muna ang music container bago buksan ang modal
       musicContainer.style.display = "none";
+
+      if (btnText2 && action2) {
+        mBtn2.textContent = btnText2;
+        mBtn2.style.display = "block";
+        secondModalAction = action2;
+      } else {
+        mBtn2.style.display = "none";
+        secondModalAction = null;
+      }
 
       if (isSpecial) {
         mIcon.classList.add("float-glow");
